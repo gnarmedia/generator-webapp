@@ -9,6 +9,9 @@ var fs = require('fs');
 
 
 var AppGenerator = module.exports = function Appgenerator(args, options) {
+
+  var config = {};
+
   yeoman.generators.Base.apply(this, arguments);
 
   // setup the test-framework property, Gruntfile template will need this
@@ -43,17 +46,18 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
     }
   }
 
-  var config, yoConfig = {};
-
   // set empty if null, keeps it from breaking
   config              = config            || {"":""};
 
   // set reasonable defaults for config if needed
   config.app        = config.app        || "app";
   config.dist       = config.dist       || "dist";
-  config.tmp        = config.tmp        || ".tmp";
+  // config.tmp        = config.tmp        || ".tmp";
   config.test       = config.test       || "test";
   config.components = config.components || "bower_components";
+
+
+  config.tmp        = ".tmp";
 
   config.assets     = config.assets     || "";
   config.styles     = config.styles     || "styles";
@@ -83,7 +87,7 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   config.tmpStyles        = path.join(config.tmp, config.styles);
   // config.tmpFonts         = path.join(config.tmp, config.fonts);
   // config.tmpImages        = path.join(config.tmp, config.images);
-  // config.tmpScripts       = path.join(config.tmp, config.scripts);
+  config.tmpScripts       = path.join(config.tmp, config.scripts);
   // config.tmpScriptsVendor = path.join(config.tmp, config.scriptsVendor);
 
   // config.testStyles        = path.join(config.test, config.styles);
