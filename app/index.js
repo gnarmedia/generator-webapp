@@ -4,6 +4,8 @@ var path = require('path');
 var spawn = require('child_process').spawn;
 var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
+var yaml = require('js-yaml');
+var fs = require('fs');
 
 
 var AppGenerator = module.exports = function Appgenerator(args, options) {
@@ -26,6 +28,89 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
       }
     }
   });
+
+  // check for existence of config file for generator
+  this.configFile = options['config'];
+
+  if (this.configFile) {
+    try {
+      config = yaml.safeLoad(fs.readFileSync(this.configFile, 'utf8'));
+      if (config.assets.length) {
+        this.useAssets = true;
+      }
+    } catch (e) {
+      console.log("config file import failed: " + e);
+    }
+  }
+
+  var config, yoConfig = {};
+
+  // set empty if null, keeps it from breaking
+  config              = config            || {"":""};
+
+  // set reasonable defaults for config if needed
+  config.app        = config.app        || "app";
+  config.dist       = config.dist       || "dist";
+  config.tmp        = config.tmp        || ".tmp";
+  config.test       = config.test       || "test";
+  config.components = config.components || "bower_components";
+
+  config.assets     = config.assets     || "";
+  config.styles     = config.styles     || "styles";
+  config.scripts    = config.scripts    || "scripts";
+  config.fonts      = config.fonts      || config.styles + "/fonts";
+  config.images     = config.images     || "images";
+  config.vendor     = config.vendor     || "vendor";
+
+  config.styles        = path.join(config.assets,  config.styles);
+  config.fonts         = path.join(config.assets,  config.fonts);
+  config.images        = path.join(config.assets,  config.images);
+  config.scripts       = path.join(config.assets,  config.scripts);
+  config.scriptsVendor = path.join(config.scripts, config.vendor);
+
+  config.appStyles        = path.join(config.app, config.styles);
+  config.appScripts       = path.join(config.app, config.scripts);
+  config.appScriptsVendor = path.join(config.app, config.scriptsVendor);
+  config.appImages        = path.join(config.app, config.images);
+  // config.appFonts         = path.join(config.app, config.fonts);
+
+  config.distStyles        = path.join(config.dist, config.styles);
+  config.distFonts         = path.join(config.dist, config.fonts);
+  config.distImages        = path.join(config.dist, config.images);
+  config.distScripts       = path.join(config.dist, config.scripts);
+  config.distScriptsVendor = path.join(config.dist, config.scriptsVendor);
+
+  config.tmpStyles        = path.join(config.tmp, config.styles);
+  // config.tmpFonts         = path.join(config.tmp, config.fonts);
+  // config.tmpImages        = path.join(config.tmp, config.images);
+  // config.tmpScripts       = path.join(config.tmp, config.scripts);
+  // config.tmpScriptsVendor = path.join(config.tmp, config.scriptsVendor);
+
+  // config.testStyles        = path.join(config.test, config.styles);
+  // config.testFonts         = path.join(config.test, config.fonts);
+  // config.testImages        = path.join(config.test, config.images);
+  // config.testScripts       = path.join(config.test, config.scripts);
+  // config.testScriptsVendor = path.join(config.test, config.scriptsVendor);
+
+  console.log(config);
+
+  // // variables for html/usermin
+  this.app        = config.app;
+  this.appStyles  = config.appStyles;
+  this.appImages  = config.appImages;
+  this.appScripts = config.appScripts;
+
+  this.tmp        = config.tmp;
+  this.scripts    = config.scripts;
+  this.components = config.components;
+
+  // this.styles            = path.join(config.assets,     config.styles);
+  // this.scripts           = path.join(config.assets,     config.scripts);
+  // this.scriptsVendor     = path.join(config.assets,     config.scripts, config.vendor);
+  // this.images            = path.join(config.assets,     config.images);
+  // this.fonts             = path.join(config.assets,     config.fonts);
+
+  this.config = config;
 
   this.options = options;
 
@@ -110,6 +195,7 @@ AppGenerator.prototype.git = function git() {
 
 AppGenerator.prototype.bower = function bower() {
   this.template('_bower.json', 'bower.json');
+  this.template('_bowerrc', '.bowerrc');
 };
 
 AppGenerator.prototype.jshint = function jshint() {
@@ -121,15 +207,15 @@ AppGenerator.prototype.editorConfig = function editorConfig() {
 };
 
 AppGenerator.prototype.h5bp = function h5bp() {
-  this.copy('favicon.ico', 'app/favicon.ico');
-  this.copy('404.html', 'app/404.html');
-  this.copy('robots.txt', 'app/robots.txt');
-  this.copy('htaccess', 'app/.htaccess');
+  this.copy('favicon.ico', this.app + '/favicon.ico');
+  this.copy('404.html',    this.app + '/404.html');
+  this.copy('robots.txt',  this.app + '/robots.txt');
+  this.copy('htaccess',    this.app + '/.htaccess');
 };
 
 AppGenerator.prototype.mainStylesheet = function mainStylesheet() {
   var css = 'main.' + (this.includeSass ? 's' : '') + 'css';
-  this.copy(css, 'app/styles/' + css);
+  this.copy(css, this.appStyles + '/' + css);
 };
 
 AppGenerator.prototype.writeIndex = function writeIndex() {
@@ -141,10 +227,10 @@ AppGenerator.prototype.writeIndex = function writeIndex() {
 
   // wire Bootstrap plugins
   if (this.includeBootstrap) {
-    var bs = '../bower_components/bootstrap';
+    var bs = '../' + this.components + '/bootstrap';
     bs += this.includeSass ?
       '-sass-official/vendor/assets/javascripts/bootstrap/' : '/js/';
-    this.indexFile = this.appendScripts(this.indexFile, 'scripts/plugins.js', [
+    this.indexFile = this.appendScripts(this.indexFile, this.scripts + '/plugins.js', [
       bs + 'affix.js',
       bs + 'alert.js',
       bs + 'dropdown.js',
@@ -163,28 +249,36 @@ AppGenerator.prototype.writeIndex = function writeIndex() {
   this.indexFile = this.appendFiles({
     html: this.indexFile,
     fileType: 'js',
-    optimizedPath: 'scripts/main.js',
-    sourceFileList: ['scripts/main.js'],
-    searchPath: '{app,.tmp}'
+    optimizedPath: this.scripts + '/main.js',
+    sourceFileList: [this.scripts + '/main.js'],
+    searchPath: '{' + this.app + ',' + this.tmp + '}'
   });
 };
 
 AppGenerator.prototype.app = function app() {
-  this.mkdir('app');
-  this.mkdir('app/scripts');
-  this.mkdir('app/styles');
-  this.mkdir('app/images');
-  this.write('app/index.html', this.indexFile);
+  this.mkdir(this.app);
+  this.mkdir(this.appScripts);
+  this.mkdir(this.appStyles);
+  this.mkdir(this.appImages);
+  this.write(this.app + '/index.html', this.indexFile);
 
   if (this.coffee) {
     this.write(
-      'app/scripts/main.coffee',
+      this.appScripts + '/main.coffee',
       'console.log "\'Allo from CoffeeScript!"'
     );
   }
   else {
-    this.write('app/scripts/main.js', 'console.log(\'\\\'Allo \\\'Allo!\');');
+    this.write(this.appScripts + '/main.js', 'console.log(\'\\\'Allo \\\'Allo!\');');
   }
+};
+
+// create yorc config file for customization
+AppGenerator.prototype.yorc = function yorc() {
+  this.write(
+    '.yorc',
+    JSON.stringify(this.config)
+  );
 };
 
 AppGenerator.prototype.install = function () {
