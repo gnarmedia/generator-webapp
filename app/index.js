@@ -101,8 +101,11 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   this.appScripts = config.appScripts;
 
   this.tmp        = config.tmp;
-  this.scripts    = config.scripts;
   this.components = config.components;
+
+  this.styles        = config.styles;
+  this.scripts       = config.scripts;
+  this.scriptsVendor = config.scriptsVendor;
 
   // this.styles            = path.join(config.assets,     config.styles);
   // this.scripts           = path.join(config.assets,     config.scripts);
