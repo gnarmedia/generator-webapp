@@ -380,7 +380,7 @@ module.exports = function (grunt) {
         modernizr: {
             dist: {
                 devFile: '<%%= config.components %>/modernizr/modernizr.js',
-                outputFile: '<%%= config.dist %>/scripts/vendor/modernizr.js',
+                outputFile: '<%%= config.distScriptsVendor %>/modernizr.js',
                 files: {
                     src: [
                         '<%%= config.distScripts %>/{,*/}*.js',

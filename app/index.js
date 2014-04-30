@@ -52,12 +52,12 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   // set reasonable defaults for config if needed
   config.app        = config.app        || "app";
   config.dist       = config.dist       || "dist";
-  // config.tmp        = config.tmp        || ".tmp";
+  config.tmp        = config.tmp        || ".tmp";
   config.test       = config.test       || "test";
   config.components = config.components || "bower_components";
 
 
-  config.tmp        = ".tmp";
+  // config.tmp        = ".tmp";
 
   config.assets     = config.assets     || "";
   config.styles     = config.styles     || "styles";
