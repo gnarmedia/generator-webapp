@@ -35,6 +35,9 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   // check for existence of config file for generator
   this.configFile = options['config'];
 
+  // set to false by default
+  this.useAssets = false;
+
   if (this.configFile) {
     try {
       config = yaml.safeLoad(fs.readFileSync(this.configFile, 'utf8'));
@@ -44,6 +47,10 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
     } catch (e) {
       console.log("config file import failed: " + e);
     }
+  }
+
+  if (config.assets !== undefined) {
+    this.useAssets = (config.assets.length) ? true : false;
   }
 
   // set empty if null, keeps it from breaking

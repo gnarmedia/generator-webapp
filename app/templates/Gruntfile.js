@@ -19,8 +19,6 @@ module.exports = function (grunt) {
     // Get configurable paths
     var config = grunt.file.readYAML('.yorc', 'utf8');
 
-    console.log(config.appStyles);
-
     // Define the configuration for all the tasks
     grunt.initConfig({
 
