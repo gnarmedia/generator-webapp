@@ -103,8 +103,6 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   // config.testScripts       = path.join(config.test, config.scripts);
   // config.testScriptsVendor = path.join(config.test, config.scriptsVendor);
 
-  console.log(config);
-
   // // variables for html/usermin
   this.app        = config.app;
   this.appStyles  = config.appStyles;
