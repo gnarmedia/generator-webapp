@@ -4,9 +4,6 @@ var path = require('path');
 var spawn = require('child_process').spawn;
 var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
-var yaml = require('js-yaml');
-var fs = require('fs');
-
 
 var AppGenerator = module.exports = function Appgenerator(args, options) {
 
@@ -40,7 +37,7 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
 
   if (this.configFile) {
     try {
-      config = yaml.safeLoad(fs.readFileSync(this.configFile, 'utf8'));
+      config = require(this.configFile);
       if (config.assets.length) {
         this.useAssets = true;
       }
@@ -126,9 +123,7 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
 
   this.options = options;
 
-  this.pkg = JSON.parse(this.readFileAsString(
-    path.join(__dirname, '../package.json')
-  ));
+  this.pkg = require('../package.json');
 };
 
 util.inherits(AppGenerator, yeoman.generators.Base);
@@ -286,11 +281,8 @@ AppGenerator.prototype.app = function app() {
 };
 
 // create yorc config file for customization
-AppGenerator.prototype.yorc = function yorc() {
-  this.write(
-    '.yorc',
-    JSON.stringify(this.config)
-  );
+AppGenerator.prototype.config = function config() {
+  this.write('config.json', JSON.stringify(this.config));
 };
 
 AppGenerator.prototype.install = function () {
