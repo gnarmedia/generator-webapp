@@ -17,7 +17,7 @@ module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
 
     // Get configurable paths
-    var config = grunt.file.readYAML('.yorc', 'utf8');
+    var config = grunt.file.readJSON("config.json", "utf8");
 
     // Define the configuration for all the tasks
     grunt.initConfig({
