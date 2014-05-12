@@ -203,7 +203,6 @@ AppGenerator.prototype.git = function git() {
 
 AppGenerator.prototype.bower = function bower() {
   this.template('_bower.json', 'bower.json');
-  this.template('_bowerrc', '.bowerrc');
 };
 
 AppGenerator.prototype.jshint = function jshint() {
