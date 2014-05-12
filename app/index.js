@@ -8,6 +8,7 @@ var chalk = require('chalk');
 
 var AppGenerator = module.exports = function Appgenerator(args, options) {
 
+  // prepare config object for creating paths
   var config = {};
 
   yeoman.generators.Base.apply(this, arguments);
@@ -36,6 +37,7 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   // set to false by default
   this.useAssets = false;
 
+  // attempt to load config if flag was set
   if (this.configFile) {
     try {
       config = require(this.configFile);
@@ -47,6 +49,7 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
     }
   }
 
+  // set flag for assets folder, used to determine the relative path in places
   if (config.assets !== undefined) {
     this.useAssets = (config.assets.length) ? true : false;
   }
@@ -54,16 +57,12 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   // set empty if null, keeps it from breaking
   config              = config            || {'':''};
 
-  // set reasonable defaults for config if needed
+  // set directory names (with reasonable defaults)
   config.app        = config.app        || 'app';
   config.dist       = config.dist       || 'dist';
   config.tmp        = config.tmp        || '.tmp';
   config.test       = config.test       || 'test';
   config.components = config.components || 'bower_components';
-
-
-  // config.tmp        = '.tmp';
-
   config.assets     = config.assets     || '';
   config.styles     = config.styles     || 'styles';
   config.scripts    = config.scripts    || 'scripts';
@@ -71,55 +70,38 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   config.images     = config.images     || 'images';
   config.vendor     = config.vendor     || 'vendor';
 
+  // base paths
   config.styles        = path.join(config.assets,  config.styles);
   config.fonts         = path.join(config.assets,  config.fonts);
   config.images        = path.join(config.assets,  config.images);
   config.scripts       = path.join(config.assets,  config.scripts);
   config.scriptsVendor = path.join(config.scripts, config.vendor);
 
-  config.appStyles        = path.join(config.app, config.styles);
-  config.appScripts       = path.join(config.app, config.scripts);
-  config.appScriptsVendor = path.join(config.app, config.scriptsVendor);
-  config.appImages        = path.join(config.app, config.images);
-  // config.appFonts         = path.join(config.app, config.fonts);
-
+  // gruntfile paths
+  config.appStyles         = path.join(config.app, config.styles);
+  config.appScripts        = path.join(config.app, config.scripts);
+  config.appScriptsVendor  = path.join(config.app, config.scriptsVendor);
+  config.appImages         = path.join(config.app, config.images);
   config.distStyles        = path.join(config.dist, config.styles);
   config.distFonts         = path.join(config.dist, config.fonts);
   config.distImages        = path.join(config.dist, config.images);
   config.distScripts       = path.join(config.dist, config.scripts);
   config.distScriptsVendor = path.join(config.dist, config.scriptsVendor);
+  config.tmpStyles         = path.join(config.tmp, config.styles);
+  config.tmpScripts        = path.join(config.tmp, config.scripts);
 
-  config.tmpStyles        = path.join(config.tmp, config.styles);
-  // config.tmpFonts         = path.join(config.tmp, config.fonts);
-  // config.tmpImages        = path.join(config.tmp, config.images);
-  config.tmpScripts       = path.join(config.tmp, config.scripts);
-  // config.tmpScriptsVendor = path.join(config.tmp, config.scriptsVendor);
-
-  // config.testStyles        = path.join(config.test, config.styles);
-  // config.testFonts         = path.join(config.test, config.fonts);
-  // config.testImages        = path.join(config.test, config.images);
-  // config.testScripts       = path.join(config.test, config.scripts);
-  // config.testScriptsVendor = path.join(config.test, config.scriptsVendor);
-
-  // // variables for html/usermin
-  this.app        = config.app;
-  this.appStyles  = config.appStyles;
-  this.appImages  = config.appImages;
-  this.appScripts = config.appScripts;
-
-  this.tmp        = config.tmp;
-  this.components = config.components;
-
+  // variables for html/usermin
+  this.app           = config.app;
+  this.appStyles     = config.appStyles;
+  this.appImages     = config.appImages;
+  this.appScripts    = config.appScripts;
+  this.tmp           = config.tmp;
+  this.components    = config.components;
   this.styles        = config.styles;
   this.scripts       = config.scripts;
   this.scriptsVendor = config.scriptsVendor;
 
-  // this.styles            = path.join(config.assets,     config.styles);
-  // this.scripts           = path.join(config.assets,     config.scripts);
-  // this.scriptsVendor     = path.join(config.assets,     config.scripts, config.vendor);
-  // this.images            = path.join(config.assets,     config.images);
-  // this.fonts             = path.join(config.assets,     config.fonts);
-
+  // make config object global
   this.config = config;
 
   this.options = options;
