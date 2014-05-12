@@ -31,7 +31,7 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   });
 
   // check for existence of config file for generator
-  this.configFile = options['config'];
+  this.configFile = options.config;
 
   // set to false by default
   this.useAssets = false;
@@ -43,7 +43,7 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
         this.useAssets = true;
       }
     } catch (e) {
-      console.log("config file import failed: " + e);
+      console.log('config file import failed: ' + e);
     }
   }
 
@@ -52,24 +52,24 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   }
 
   // set empty if null, keeps it from breaking
-  config              = config            || {"":""};
+  config              = config            || {'':''};
 
   // set reasonable defaults for config if needed
-  config.app        = config.app        || "app";
-  config.dist       = config.dist       || "dist";
-  config.tmp        = config.tmp        || ".tmp";
-  config.test       = config.test       || "test";
-  config.components = config.components || "bower_components";
+  config.app        = config.app        || 'app';
+  config.dist       = config.dist       || 'dist';
+  config.tmp        = config.tmp        || '.tmp';
+  config.test       = config.test       || 'test';
+  config.components = config.components || 'bower_components';
 
 
-  // config.tmp        = ".tmp";
+  // config.tmp        = '.tmp';
 
-  config.assets     = config.assets     || "";
-  config.styles     = config.styles     || "styles";
-  config.scripts    = config.scripts    || "scripts";
-  config.fonts      = config.fonts      || config.styles + "/fonts";
-  config.images     = config.images     || "images";
-  config.vendor     = config.vendor     || "vendor";
+  config.assets     = config.assets     || '';
+  config.styles     = config.styles     || 'styles';
+  config.scripts    = config.scripts    || 'scripts';
+  config.fonts      = config.fonts      || config.styles + '/fonts';
+  config.images     = config.images     || 'images';
+  config.vendor     = config.vendor     || 'vendor';
 
   config.styles        = path.join(config.assets,  config.styles);
   config.fonts         = path.join(config.assets,  config.fonts);
