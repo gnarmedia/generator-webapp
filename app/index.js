@@ -66,7 +66,7 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   config.assets     = config.assets     || '';
   config.styles     = config.styles     || 'styles';
   config.scripts    = config.scripts    || 'scripts';
-  config.fonts      = config.fonts      || config.styles + '/fonts';
+  config.fonts      = config.fonts      || 'fonts';
   config.images     = config.images     || 'images';
   config.vendor     = config.vendor     || 'vendor';
 
@@ -99,6 +99,7 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   this.components    = config.components;
   this.styles        = config.styles;
   this.scripts       = config.scripts;
+  this.fonts         = config.fonts;
   this.scriptsVendor = config.scriptsVendor;
 
   // make config object global

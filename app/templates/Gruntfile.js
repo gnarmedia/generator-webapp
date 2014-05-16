@@ -357,11 +357,10 @@ module.exports = function (grunt) {
                 }<% if (includeBootstrap) { %>, {
                     expand: true,
                     dot: true,<% if (includeSass) { %>
-                    cwd: '.',
-                    src: ['<%%= config.components %>/bootstrap-sass-official/vendor/assets/fonts/bootstrap/*.*'],<% } else { %>
-                    cwd: '<%%= config.components %>/bootstrap/dist',
-                    src: ['<%%= config.fonts %>/*.*'],<% } %>
-                    dest: '<%%= config.dist %>'
+                    cwd: 'bower_components/bootstrap-sass-official/vendor/assets/fonts/bootstrap/',<% } else { %>
+                    cwd: 'bower_components/bootstrap/dist/fonts/',<% } %>
+                    src: ['*.*'],
+                    dest: '<%%= config.distFonts %>'
                 }<% } %>]
             },
             styles: {
