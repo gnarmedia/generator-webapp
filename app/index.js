@@ -6,6 +6,7 @@ var yeoman = require('yeoman-generator');
 var yosay = require('yosay');
 var chalk = require('chalk');
 
+
 var AppGenerator = module.exports = function Appgenerator(args, options) {
 
   // prepare config object for creating paths
@@ -15,7 +16,6 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
 
   // setup the test-framework property, Gruntfile template will need this
   this.testFramework = options['test-framework'] || 'mocha';
-  this.coffee = options.coffee;
 
   // for hooks to resolve on mocha by default
   options['test-framework'] = this.testFramework;
@@ -36,6 +36,7 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
 
   // set to false by default
   this.useAssets = false;
+  this.useComponents = false;
 
   // attempt to load config if flag was set
   if (this.configFile) {
@@ -52,6 +53,9 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   // set flag for assets folder, used to determine the relative path in places
   if (config.assets !== undefined) {
     this.useAssets = (config.assets.length) ? true : false;
+  }
+  if (config.components !== undefined) {
+    this.useComponents = (config.components.length) ? true : false;
   }
 
   // set empty if null, keeps it from breaking
@@ -137,6 +141,14 @@ AppGenerator.prototype.askFor = function askFor() {
       value: 'includeSass',
       checked: false
     },{
+      name: 'Coffeescript',
+      value: 'includeCoffeeScript',
+      checked: true
+    },{
+      name: 'Slim',
+      value: 'includeSlim',
+      checked: false
+    },{
       name: 'Modernizr',
       value: 'includeModernizr',
       checked: false
@@ -161,7 +173,9 @@ AppGenerator.prototype.askFor = function askFor() {
     }
 
     this.includeSass = hasFeature('includeSass');
+    this.includeSlim = hasFeature('includeSlim');
     this.includeBootstrap = hasFeature('includeBootstrap');
+    this.includeCoffeeScript = hasFeature('includeCoffeeScript');
     this.includeModernizr = hasFeature('includeModernizr');
 
     this.includeLibSass = answers.libsass;
@@ -186,6 +200,9 @@ AppGenerator.prototype.git = function git() {
 
 AppGenerator.prototype.bower = function bower() {
   this.template('_bower.json', 'bower.json');
+  if (this.useComponents) {
+    this.write('.bowerrc', '{"directory":"./' + this.components + '/"}');
+  }
 };
 
 AppGenerator.prototype.jshint = function jshint() {
@@ -209,10 +226,13 @@ AppGenerator.prototype.mainStylesheet = function mainStylesheet() {
 };
 
 AppGenerator.prototype.writeIndex = function writeIndex() {
+  var ext = (this.includeSlim) ? 'slim' : 'html',
+    indexFileName = 'index.' + ext;
 
   this.indexFile = this.readFileAsString(
-    path.join(this.sourceRoot(), 'index.html')
+    path.join(this.sourceRoot(), indexFileName)
   );
+
   this.indexFile = this.engine(this.indexFile, this);
 
   // wire Bootstrap plugins
@@ -243,6 +263,8 @@ AppGenerator.prototype.writeIndex = function writeIndex() {
     sourceFileList: [this.scripts + '/main.js'],
     searchPath: '{' + this.app + ',' + this.tmp + '}'
   });
+
+  this.write(this.app + '/' + indexFileName, this.indexFile);
 };
 
 AppGenerator.prototype.app = function app() {
@@ -250,9 +272,8 @@ AppGenerator.prototype.app = function app() {
   this.mkdir(this.appScripts);
   this.mkdir(this.appStyles);
   this.mkdir(this.appImages);
-  this.write(this.app + '/index.html', this.indexFile);
 
-  if (this.coffee) {
+  if (this.includeCoffeeScript) {
     this.write(
       this.appScripts + '/main.coffee',
       'console.log "\'Allo from CoffeeScript!"'
