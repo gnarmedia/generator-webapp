@@ -103,6 +103,7 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   this.components    = config.components;
   this.styles        = config.styles;
   this.scripts       = config.scripts;
+  this.scriptsVendor = config.scriptsVendor;
   this.fonts         = config.fonts;
   this.scriptsVendor = config.scriptsVendor;
 
@@ -133,13 +134,17 @@ AppGenerator.prototype.askFor = function askFor() {
     name: 'features',
     message: 'What more would you like?',
     choices: [{
+      name: 'Foundation',
+      value: 'includeFoundation',
+      checked: true
+    },{
       name: 'Bootstrap',
       value: 'includeBootstrap',
-      checked: true
+      checked: false
     },{
       name: 'Sass',
       value: 'includeSass',
-      checked: false
+      checked: true
     },{
       name: 'Coffeescript',
       value: 'includeCoffeeScript',
@@ -147,11 +152,11 @@ AppGenerator.prototype.askFor = function askFor() {
     },{
       name: 'Slim',
       value: 'includeSlim',
-      checked: false
+      checked: true
     },{
       name: 'Modernizr',
       value: 'includeModernizr',
-      checked: false
+      checked: true
     }]
   }, {
     when: function (answers) {
@@ -174,12 +179,18 @@ AppGenerator.prototype.askFor = function askFor() {
 
     this.includeSass = hasFeature('includeSass');
     this.includeSlim = hasFeature('includeSlim');
+    this.includeFoundation = hasFeature('includeFoundation');
     this.includeBootstrap = hasFeature('includeBootstrap');
     this.includeCoffeeScript = hasFeature('includeCoffeeScript');
     this.includeModernizr = hasFeature('includeModernizr');
 
     this.includeLibSass = answers.libsass;
     this.includeRubySass = !answers.libsass;
+
+    if (this.includeFoundation && this.includeBootstrap) {
+      this.log('Bootstrap and Foundation conflict, Bootstrap disabled.');
+      this.includeBootstrap = false;
+    }
 
     cb();
   }.bind(this));
@@ -235,35 +246,6 @@ AppGenerator.prototype.writeIndex = function writeIndex() {
 
   this.indexFile = this.engine(this.indexFile, this);
 
-  // wire Bootstrap plugins
-  if (this.includeBootstrap) {
-    var bs = '../' + this.components + '/bootstrap';
-    bs += this.includeSass ?
-      '-sass-official/vendor/assets/javascripts/bootstrap/' : '/js/';
-    this.indexFile = this.appendScripts(this.indexFile, this.scripts + '/plugins.js', [
-      bs + 'affix.js',
-      bs + 'alert.js',
-      bs + 'dropdown.js',
-      bs + 'tooltip.js',
-      bs + 'modal.js',
-      bs + 'transition.js',
-      bs + 'button.js',
-      bs + 'popover.js',
-      bs + 'carousel.js',
-      bs + 'scrollspy.js',
-      bs + 'collapse.js',
-      bs + 'tab.js'
-    ]);
-  }
-
-  this.indexFile = this.appendFiles({
-    html: this.indexFile,
-    fileType: 'js',
-    optimizedPath: this.scripts + '/main.js',
-    sourceFileList: [this.scripts + '/main.js'],
-    searchPath: '{' + this.app + ',' + this.tmp + '}'
-  });
-
   this.write(this.app + '/' + indexFileName, this.indexFile);
 };
 
@@ -284,7 +266,7 @@ AppGenerator.prototype.app = function app() {
   }
 };
 
-// create yorc config file for customization
+// create config.json for customization
 AppGenerator.prototype.config = function config() {
   this.write('config.json', JSON.stringify(this.config));
 };
