@@ -16,6 +16,7 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
 
   // setup the test-framework property, Gruntfile template will need this
   this.testFramework = options['test-framework'] || 'mocha';
+  this.coffee = options['coffee'];
 
   // for hooks to resolve on mocha by default
   options['test-framework'] = this.testFramework;
@@ -74,6 +75,8 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   config.images     = config.images     || 'images';
   config.vendor     = config.vendor     || 'vendor';
 
+  this.fonts         = config.fonts;
+
   // base paths
   config.styles        = path.join(config.assets,  config.styles);
   config.fonts         = path.join(config.assets,  config.fonts);
@@ -104,8 +107,6 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
   this.styles        = config.styles;
   this.scripts       = config.scripts;
   this.scriptsVendor = config.scriptsVendor;
-  this.fonts         = config.fonts;
-  this.scriptsVendor = config.scriptsVendor;
 
   // make config object global
   this.config = config;
@@ -134,24 +135,12 @@ AppGenerator.prototype.askFor = function askFor() {
     name: 'features',
     message: 'What more would you like?',
     choices: [{
-      name: 'Foundation',
-      value: 'includeFoundation',
-      checked: true
-    },{
       name: 'Bootstrap',
       value: 'includeBootstrap',
       checked: false
     },{
       name: 'Sass',
       value: 'includeSass',
-      checked: true
-    },{
-      name: 'Coffeescript',
-      value: 'includeCoffeeScript',
-      checked: true
-    },{
-      name: 'Slim',
-      value: 'includeSlim',
       checked: true
     },{
       name: 'Modernizr',
