@@ -60,6 +60,10 @@ AppGenerator.prototype.askFor = function askFor() {
       value: 'includeSass',
       checked: false
     },{
+      name: 'Slim',
+      value: 'includeSlim',
+      checked: false
+    },{
       name: 'Modernizr',
       value: 'includeModernizr',
       checked: false
@@ -84,6 +88,7 @@ AppGenerator.prototype.askFor = function askFor() {
     }
 
     this.includeSass = hasFeature('includeSass');
+    this.includeSlim = hasFeature('includeSlim');
     this.includeBootstrap = hasFeature('includeBootstrap');
     this.includeModernizr = hasFeature('includeModernizr');
 
@@ -132,9 +137,11 @@ AppGenerator.prototype.mainStylesheet = function mainStylesheet() {
 };
 
 AppGenerator.prototype.writeIndex = function writeIndex() {
+  var ext = (this.includeSlim) ? 'slim' : 'html',
+    indexFileName = 'index.' + ext;
 
   this.indexFile = this.readFileAsString(
-    path.join(this.sourceRoot(), 'index.html')
+    path.join(this.sourceRoot(), indexFileName)
   );
   this.indexFile = this.engine(this.indexFile, this);
 
@@ -166,6 +173,8 @@ AppGenerator.prototype.writeIndex = function writeIndex() {
     sourceFileList: ['scripts/main.js'],
     searchPath: '{app,.tmp}'
   });
+
+  this.write('app/' + indexFileName, this.indexFile);
 };
 
 AppGenerator.prototype.app = function app() {
@@ -173,7 +182,6 @@ AppGenerator.prototype.app = function app() {
   this.mkdir('app/scripts');
   this.mkdir('app/styles');
   this.mkdir('app/images');
-  this.write('app/index.html', this.indexFile);
 
   if (this.coffee) {
     this.write(

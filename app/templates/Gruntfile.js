@@ -63,7 +63,11 @@ module.exports = function (grunt) {
             styles: {
                 files: ['<%%= config.app %>/styles/{,*/}*.css'],
                 tasks: ['newer:copy:styles', 'autoprefixer']
-            },
+            },<% if (includeSlim) { %>
+            slim: {
+                files: ['<%%= config.app %>/{,*/}*.slim'],
+                tasks: ['slim']
+            },<% } %>
             livereload: {
                 options: {
                     livereload: '<%%= connect.options.livereload %>'
@@ -251,7 +255,23 @@ module.exports = function (grunt) {
                     ]
                 }
             }
-        },
+        },<% if (includeSlim) { %>
+
+        // Compile Slim to HTML
+        slim: {
+            app: {
+                options: {
+                    pretty: true
+                },
+                files: [{
+                    expand: true,
+                    cwd:    '<%%= config.app %>',
+                    src:    '*.slim',
+                    dest:   '<%%= config.app %>',
+                    ext:    '.html'
+                }]
+            }
+        },<% } %>
 
         // Reads HTML for usemin blocks to enable smart builds that automatically
         // concat, minify and revision files. Creates configurations in memory so
@@ -423,7 +443,8 @@ module.exports = function (grunt) {
         }
 
         grunt.task.run([
-            'clean:server',
+            'clean:server',<% if (includeSlim) { %>
+            'slim',<% } %>
             'concurrent:server',
             'autoprefixer',
             'connect:livereload',
@@ -439,7 +460,8 @@ module.exports = function (grunt) {
     grunt.registerTask('test', function (target) {
         if (target !== 'watch') {
             grunt.task.run([
-                'clean:server',
+                'clean:server',<% if (includeSlim) { %>
+                'slim',<% } %>
                 'concurrent:test',
                 'autoprefixer'
             ]);
@@ -453,7 +475,8 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('build', [
-        'clean:dist',
+        'clean:dist',<% if (includeSlim) { %>
+        'slim',<% } %>
         'useminPrepare',
         'concurrent:dist',
         'autoprefixer',
