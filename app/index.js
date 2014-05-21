@@ -16,7 +16,6 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
 
   // setup the test-framework property, Gruntfile template will need this
   this.testFramework = options['test-framework'] || 'mocha';
-  this.coffee = options.coffee;
 
   // for hooks to resolve on mocha by default
   options['test-framework'] = this.testFramework;
@@ -151,6 +150,10 @@ AppGenerator.prototype.askFor = function askFor() {
       value: 'includeSlim',
       checked: false
     },{
+      name: 'CoffeeScript',
+      value: 'includeCoffeeScript',
+      checked: false
+    },{
       name: 'Modernizr',
       value: 'includeModernizr',
       checked: true
@@ -178,6 +181,7 @@ AppGenerator.prototype.askFor = function askFor() {
     this.includeSass = hasFeature('includeSass');
     this.includeFoundation = hasFeature('includeFoundation');
     this.includeBootstrap = hasFeature('includeBootstrap');
+    this.includeCoffeeScript = hasFeature('includeCoffeeScript');
     this.includeModernizr = hasFeature('includeModernizr');
 
     this.includeLibSass = answers.libsass;
@@ -258,7 +262,7 @@ AppGenerator.prototype.app = function app() {
   this.mkdir(this.appStyles);
   this.mkdir(this.appImages);
 
-  if (this.coffee) {
+  if (this.includeCoffeeScript) {
     this.write(
       this.appScripts + '/main.coffee',
       'console.log "\'Allo from CoffeeScript!"'
