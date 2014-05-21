@@ -54,9 +54,13 @@ AppGenerator.prototype.askFor = function askFor() {
     name: 'features',
     message: 'What more would you like?',
     choices: [{
+      name: 'Foundation',
+      value: 'includeFoundation',
+      checked: true
+    },{
       name: 'Bootstrap',
       value: 'includeBootstrap',
-      checked: true
+      checked: false
     },{
       name: 'Sass',
       value: 'includeSass',
@@ -86,11 +90,17 @@ AppGenerator.prototype.askFor = function askFor() {
     }
 
     this.includeSass = hasFeature('includeSass');
+    this.includeFoundation = hasFeature('includeFoundation');
     this.includeBootstrap = hasFeature('includeBootstrap');
     this.includeModernizr = hasFeature('includeModernizr');
 
     this.includeLibSass = answers.libsass;
     this.includeRubySass = !answers.libsass;
+
+    if (this.includeFoundation && this.includeBootstrap) {
+      this.log('Bootstrap and Foundation conflict, Bootstrap disabled.');
+      this.includeBootstrap = false;
+    }
 
     cb();
   }.bind(this));
