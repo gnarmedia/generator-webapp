@@ -16,7 +16,7 @@ var AppGenerator = module.exports = function Appgenerator(args, options) {
 
   // setup the test-framework property, Gruntfile template will need this
   this.testFramework = options['test-framework'] || 'mocha';
-  this.coffee = options['coffee'];
+  this.coffee = options.coffee;
 
   // for hooks to resolve on mocha by default
   options['test-framework'] = this.testFramework;
@@ -137,7 +137,7 @@ AppGenerator.prototype.askFor = function askFor() {
     choices: [{
       name: 'Bootstrap',
       value: 'includeBootstrap',
-      checked: false
+      checked: true
     },{
       name: 'Sass',
       value: 'includeSass',
@@ -167,19 +167,11 @@ AppGenerator.prototype.askFor = function askFor() {
     }
 
     this.includeSass = hasFeature('includeSass');
-    this.includeSlim = hasFeature('includeSlim');
-    this.includeFoundation = hasFeature('includeFoundation');
     this.includeBootstrap = hasFeature('includeBootstrap');
-    this.includeCoffeeScript = hasFeature('includeCoffeeScript');
     this.includeModernizr = hasFeature('includeModernizr');
 
     this.includeLibSass = answers.libsass;
     this.includeRubySass = !answers.libsass;
-
-    if (this.includeFoundation && this.includeBootstrap) {
-      this.log('Bootstrap and Foundation conflict, Bootstrap disabled.');
-      this.includeBootstrap = false;
-    }
 
     cb();
   }.bind(this));
@@ -226,16 +218,40 @@ AppGenerator.prototype.mainStylesheet = function mainStylesheet() {
 };
 
 AppGenerator.prototype.writeIndex = function writeIndex() {
-  var ext = (this.includeSlim) ? 'slim' : 'html',
-    indexFileName = 'index.' + ext;
 
   this.indexFile = this.readFileAsString(
-    path.join(this.sourceRoot(), indexFileName)
+    path.join(this.sourceRoot(), 'index.html')
   );
-
   this.indexFile = this.engine(this.indexFile, this);
 
-  this.write(this.app + '/' + indexFileName, this.indexFile);
+  // wire Bootstrap plugins
+  if (this.includeBootstrap) {
+    var bs = '../' + this.components + '/bootstrap';
+    bs += this.includeSass ?
+      '-sass-official/vendor/assets/javascripts/bootstrap/' : '/js/';
+    this.indexFile = this.appendScripts(this.indexFile, 'scripts/plugins.js', [
+      bs + 'affix.js',
+      bs + 'alert.js',
+      bs + 'dropdown.js',
+      bs + 'tooltip.js',
+      bs + 'modal.js',
+      bs + 'transition.js',
+      bs + 'button.js',
+      bs + 'popover.js',
+      bs + 'carousel.js',
+      bs + 'scrollspy.js',
+      bs + 'collapse.js',
+      bs + 'tab.js'
+    ]);
+  }
+
+  this.indexFile = this.appendFiles({
+    html: this.indexFile,
+    fileType: 'js',
+    optimizedPath: 'scripts/main.js',
+    sourceFileList: ['scripts/main.js'],
+    searchPath: '{app,.tmp}'
+  });
 };
 
 AppGenerator.prototype.app = function app() {
@@ -243,8 +259,9 @@ AppGenerator.prototype.app = function app() {
   this.mkdir(this.appScripts);
   this.mkdir(this.appStyles);
   this.mkdir(this.appImages);
+  this.write('app/index.html', this.indexFile);
 
-  if (this.includeCoffeeScript) {
+  if (this.coffee) {
     this.write(
       this.appScripts + '/main.coffee',
       'console.log "\'Allo from CoffeeScript!"'
