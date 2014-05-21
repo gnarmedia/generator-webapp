@@ -135,9 +135,13 @@ AppGenerator.prototype.askFor = function askFor() {
     name: 'features',
     message: 'What more would you like?',
     choices: [{
+      name: 'Foundation',
+      value: 'includeFoundation',
+      checked: true
+    },{
       name: 'Bootstrap',
       value: 'includeBootstrap',
-      checked: true
+      checked: false
     },{
       name: 'Sass',
       value: 'includeSass',
@@ -170,13 +174,19 @@ AppGenerator.prototype.askFor = function askFor() {
       return features.indexOf(feat) !== -1;
     }
 
+	this.includeSlim = hasFeature('includeSlim');
     this.includeSass = hasFeature('includeSass');
-    this.includeSlim = hasFeature('includeSlim');
+    this.includeFoundation = hasFeature('includeFoundation');
     this.includeBootstrap = hasFeature('includeBootstrap');
     this.includeModernizr = hasFeature('includeModernizr');
 
     this.includeLibSass = answers.libsass;
     this.includeRubySass = !answers.libsass;
+
+    if (this.includeFoundation && this.includeBootstrap) {
+      this.log('Bootstrap and Foundation conflict, Bootstrap disabled.');
+      this.includeBootstrap = false;
+    }
 
     cb();
   }.bind(this));
@@ -230,27 +240,6 @@ AppGenerator.prototype.writeIndex = function writeIndex() {
     path.join(this.sourceRoot(), indexFileName)
   );
   this.indexFile = this.engine(this.indexFile, this);
-
-  // wire Bootstrap plugins
-  if (this.includeBootstrap) {
-    var bs = '../' + this.components + '/bootstrap';
-    bs += this.includeSass ?
-      '-sass-official/vendor/assets/javascripts/bootstrap/' : '/js/';
-    this.indexFile = this.appendScripts(this.indexFile, this.scripts + '/plugins.js', [
-      bs + 'affix.js',
-      bs + 'alert.js',
-      bs + 'dropdown.js',
-      bs + 'tooltip.js',
-      bs + 'modal.js',
-      bs + 'transition.js',
-      bs + 'button.js',
-      bs + 'popover.js',
-      bs + 'carousel.js',
-      bs + 'scrollspy.js',
-      bs + 'collapse.js',
-      bs + 'tab.js'
-    ]);
-  }
 
   this.indexFile = this.appendFiles({
     html: this.indexFile,

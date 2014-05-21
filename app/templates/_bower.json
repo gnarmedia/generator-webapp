@@ -1,11 +1,12 @@
 {
   "name": "<%= _.slugify(appname) %>",
   "private": true,
-  "dependencies": {<% if (includeBootstrap) { if (includeSass) { %>
+  "dependencies": {<% if (includeFoundation) { %>
+    "foundation": "~5.2.2"<% } else { if (includeBootstrap) { if (includeSass) { %>
     "bootstrap-sass-official": "~3.1.0",<% } else { %>
     "bootstrap": "~3.0.3",<% }} if (includeModernizr) { %>
     "modernizr": "~2.6.2",<% } %>
-    "jquery": "~1.11.0"
+    "jquery": "~1.11.0"<% } %>
   },
   "devDependencies": {}
 }

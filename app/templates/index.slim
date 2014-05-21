@@ -12,9 +12,7 @@ html.no-js
     |
       <!-- build:css styles/vendor.css -->
       <!-- bower:css -->
-      <% if (includeBootstrap && !includeSass) { %>
-      <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.css">
-      <% } %>
+      <% if (!includeSass) { if (includeFoundation) { %><link rel="stylesheet" href="../<%= components %>/foundation/css/foundation.css"><% } if (includeBootstrap) { %><link rel="stylesheet" href="../<%= components %>/bootstrap/dist/css/bootstrap.css"><% }} %>
       <!-- endbower -->
       <!-- endbuild -->
 
@@ -24,15 +22,58 @@ html.no-js
 
       <% if (includeModernizr) { %>
       <!-- build:js scripts/vendor/modernizr.js -->
-      <script src="../bower_components/modernizr/modernizr.js"></script>
-      <!-- endbuild -->
-      <% } %>
+      <script src="../<%= components %>/modernizr/modernizr.js"></script>
+      <!-- endbuild --><% } %>
   body
 
     /[if lt IE 10]
       p.browsehappy You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.
 
-    <% if (includeBootstrap) { %>
+    <% if (includeFoundation) { %>
+    row
+        .header
+          nav.top-bar[data-topbar]
+            ul.title-area
+              li.name
+                h1
+                  a href="#" <%= appname %>
+            section.top-bar-section
+              ul.right
+                li.active
+                  a href="#" Home
+                li
+                  a href="#" About
+                li
+                  a href="#" Contact
+
+        .panel
+          h1 'Allo, 'Allo!
+          p Always a pleasure scaffolding your apps.
+          p
+            a.button href="#"
+              ' Splendid!
+
+        .row
+          .columns
+            h4 Slim
+            p Fast, lightweight, templating language for Ruby.<% if (includeSass) { %>
+
+            h4 Sass
+            p Mature, stable, and powerful professional grade CSS extension language.<% } %>
+
+            h4 HTML5 Boilerplate
+            p Professional front-end template for building fast, robust, and adaptable web apps or sites.
+
+            h4 Foundation
+            p The most advanced responsive front-end framework in the world<% if (includeSass) { %>
+
+            h4 Modernizr
+            p Open-source JavaScript library that helps you build the next generation of HTML5 and CSS3-powered websites.<% } %>
+
+        footer
+          p
+            span from the Yeoman team
+    <% } else if (includeBootstrap) { %>
     .container
         .header
           ul.nav.nav-pills.pull-right
@@ -54,14 +95,14 @@ html.no-js
 
         .row.marketing
           .col-lg-6
-            h4 HTML5 Boilerplate
-            p HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.<% if (includeSass) { %>
+            h4 Slim
+            p Slim is a fast, lightweight, templating language for Ruby.<% if (includeSass) { %>
 
             h4 Sass
-            p Sass is a mature, stable, and powerful professional grade CSS extension language.<% } if (includeSlim) { %>
+            p Sass is a mature, stable, and powerful professional grade CSS extension language.<% } %>
 
-            h4 Slim
-            p Slim is a fast, lightweight, templating language for Ruby.<% } %>
+            h4 HTML5 Boilerplate
+            p HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.
 
             h4 Bootstrap
             p Sleek, intuitive, and powerful mobile first front-end framework for faster and easier web development.<% if (includeModernizr) { %>
@@ -88,9 +129,51 @@ html.no-js
     |
       <!-- build:js scripts/vendor.js -->
       <!-- bower:js -->
-      <script src="../bower_components/jquery/dist/jquery.js"></script>
       <!-- endbower -->
       <!-- endbuild -->
+
+      <!-- build:js scripts/vendor/jquery.js -->
+      <script src="../<%= components %>/jquery/dist/jquery.js"></script>
+      <!-- endbuild --><% if (includeFoundation) { %>
+
+      <!-- build:js scripts/vendor/fastclick.js -->
+      <script src="../<%= components %>/fastclick/lib/fastclick.js"></script>
+      <!-- endbuild -->
+
+      <!-- build:js scripts/foundation.js -->
+      <script src="../<%= components %>/foundation/js/foundation/foundation.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/abide.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/accordion.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/alert.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/clearing.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/dropdown.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/equalizer.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/interchange.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/joyride.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/magellan.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/offcanvas.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/orbit.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/reveal.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/slider.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/tab.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/tooltip.js"></script>
+      <script src="../<%= components %>/foundation/js/foundation/topbar.js"></script>
+      <!-- endbuild --><% } %>
+
+      <% if (includeBootstrap) { %>}<!-- build:js scripts/plugins.js -->
+      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/affix.js"></script>
+      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/alert.js"></script>
+      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/dropdown.js"></script>
+      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/tooltip.js"></script>
+      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/modal.js"></script>
+      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/transition.js"></script>
+      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/button.js"></script>
+      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/popover.js"></script>
+      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/carousel.js"></script>
+      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/scrollspy.js"></script>
+      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/collapse.js"></script>
+      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/tab.js"></script>
+      <!-- endbuild --><% } %>
 
     / Google Analytics: change UA-XXXXX-X to be your site's ID.
     javascript:
