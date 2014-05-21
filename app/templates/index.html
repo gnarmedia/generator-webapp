@@ -120,15 +120,15 @@
         <!-- endbower -->
         <!-- endbuild -->
 
-        <!-- build:js scripts/vendor/jquery.js -->
+        <!-- build:js <%= scriptsVendor %>/jquery.js -->
         <script src="../<%= components %>/jquery/dist/jquery.js"></script>
         <!-- endbuild --><% if (includeFoundation) { %>
 
-        <!-- build:js scripts/vendor/fastclick.js -->
+        <!-- build:js <%= scriptsVendor %>/fastclick.js -->
         <script src="../<%= components %>/fastclick/lib/fastclick.js"></script>
         <!-- endbuild -->
 
-        <!-- build:js scripts/foundation.js -->
+        <!-- build:js <%= scriptsVendor %>/foundation.js -->
         <script src="../<%= components %>/foundation/js/foundation/foundation.js"></script>
         <script src="../<%= components %>/foundation/js/foundation/foundation.abide.js"></script>
         <script src="../<%= components %>/foundation/js/foundation/foundation.accordion.js"></script>
@@ -148,7 +148,7 @@
         <script src="../<%= components %>/foundation/js/foundation/foundation.topbar.js"></script>
         <!-- endbuild --><% } %>
 
-        <% if (includeBootstrap) { %>}<!-- build:js scripts/plugins.js -->
+        <% if (includeBootstrap) { %>}<!-- build:js <%= scriptsVendor %>/bootstrap.js -->
         <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/affix.js"></script>
         <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/alert.js"></script>
         <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/dropdown.js"></script>

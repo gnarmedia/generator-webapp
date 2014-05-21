@@ -1,6 +1,6 @@
 <% if (includeFoundation) { %>// bower:scss
 @import
-    "../../bower_components/foundation/scss/foundation.scss";
+    "../../<% if (useAssets) { %>../<% } %><%= components %>/foundation/scss/foundation.scss";
 // endbower<% } else if (includeBootstrap) { %>$icon-font-path: "../fonts/";
 
 // bower:scss
