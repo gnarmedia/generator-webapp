@@ -236,7 +236,7 @@ AppGenerator.prototype.writeIndex = function writeIndex() {
     var bs = '../' + this.components + '/bootstrap';
     bs += this.includeSass ?
       '-sass-official/vendor/assets/javascripts/bootstrap/' : '/js/';
-    this.indexFile = this.appendScripts(this.indexFile, 'scripts/plugins.js', [
+    this.indexFile = this.appendScripts(this.indexFile, this.scripts + '/plugins.js', [
       bs + 'affix.js',
       bs + 'alert.js',
       bs + 'dropdown.js',
@@ -255,8 +255,8 @@ AppGenerator.prototype.writeIndex = function writeIndex() {
   this.indexFile = this.appendFiles({
     html: this.indexFile,
     fileType: 'js',
-    optimizedPath: 'scripts/main.js',
-    sourceFileList: ['scripts/main.js'],
+    optimizedPath: this.scripts + '/main.js',
+    sourceFileList: [this.scripts + '/main.js'],
     searchPath: '{app,.tmp}'
   });
 
