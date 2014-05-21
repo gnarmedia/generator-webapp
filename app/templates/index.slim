@@ -29,50 +29,47 @@ html.no-js
     /[if lt IE 10]
       p.browsehappy You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.
 
-    <% if (includeFoundation) { %>
-    row
-        .header
-          nav.top-bar[data-topbar]
-            ul.title-area
-              li.name
-                h1
-                  a href="#" <%= appname %>
-            section.top-bar-section
-              ul.right
-                li.active
-                  a href="#" Home
-                li
-                  a href="#" About
-                li
-                  a href="#" Contact
+    <% if (includeFoundation) { %>.row
+      .header
+        nav.top-bar[data-topbar]
+          ul.title-area
+            li.name
+              h1
+                a href="#" <%= appname %>
+          section.top-bar-section
+            ul.right
+              li.active
+                a href="#" Home
+              li
+                a href="#" About
+              li
+                a href="#" Contact
 
-        .panel
-          h1 'Allo, 'Allo!
-          p Always a pleasure scaffolding your apps.
-          p
-            a.button href="#"
-              ' Splendid!
+      .panel
+        h1 'Allo, 'Allo!
+        p Always a pleasure scaffolding your apps.
+        p
+          a.button href="#"
+            ' Splendid!
 
-        .row
-          .columns
-            h4 Slim
-            p Fast, lightweight, templating language for Ruby.<% if (includeSass) { %>
+      h4 Slim
+      p Fast, lightweight, templating language for Ruby.<% if (includeSass) { %>
 
-            h4 Sass
-            p Mature, stable, and powerful professional grade CSS extension language.<% } %>
+      h4 Sass
+      p Mature, stable, and powerful professional grade CSS extension language.<% } %>
 
-            h4 HTML5 Boilerplate
-            p Professional front-end template for building fast, robust, and adaptable web apps or sites.
+      h4 HTML5 Boilerplate
+      p Professional front-end template for building fast, robust, and adaptable web apps or sites.
 
-            h4 Foundation
-            p The most advanced responsive front-end framework in the world<% if (includeSass) { %>
+      h4 Foundation
+      p The most advanced responsive front-end framework in the world<% if (includeSass) { %>
 
-            h4 Modernizr
-            p Open-source JavaScript library that helps you build the next generation of HTML5 and CSS3-powered websites.<% } %>
+      h4 Modernizr
+      p Open-source JavaScript library that helps you build the next generation of HTML5 and CSS3-powered websites.<% } %>
 
-        footer
-          p
-            span from the Yeoman team
+      footer
+        p
+          span from the Yeoman team
     <% } else if (includeBootstrap) { %>
     .container
         .header
