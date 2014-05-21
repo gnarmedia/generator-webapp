@@ -148,11 +148,11 @@ AppGenerator.prototype.askFor = function askFor() {
     },{
       name: 'Slim',
       value: 'includeSlim',
-      checked: false
+      checked: true
     },{
       name: 'CoffeeScript',
       value: 'includeCoffeeScript',
-      checked: false
+      checked: true
     },{
       name: 'Modernizr',
       value: 'includeModernizr',
@@ -244,14 +244,6 @@ AppGenerator.prototype.writeIndex = function writeIndex() {
     path.join(this.sourceRoot(), indexFileName)
   );
   this.indexFile = this.engine(this.indexFile, this);
-
-  this.indexFile = this.appendFiles({
-    html: this.indexFile,
-    fileType: 'js',
-    optimizedPath: this.scripts + '/main.js',
-    sourceFileList: [this.scripts + '/main.js'],
-    searchPath: '{app,.tmp}'
-  });
 
   this.write('app/' + indexFileName, this.indexFile);
 };
