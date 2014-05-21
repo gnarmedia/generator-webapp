@@ -6,7 +6,6 @@ var yeoman = require('yeoman-generator');
 var yosay = require('yosay');
 var chalk = require('chalk');
 
-
 var AppGenerator = module.exports = function Appgenerator(args, options) {
 
   // prepare config object for creating paths
