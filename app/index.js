@@ -262,15 +262,7 @@ AppGenerator.prototype.app = function app() {
   this.mkdir(this.appStyles);
   this.mkdir(this.appImages);
 
-  if (this.includeCoffeeScript) {
-    this.write(
-      this.appScripts + '/main.coffee',
-      'console.log "\'Allo from CoffeeScript!"'
-    );
-  }
-  else {
-    this.write(this.appScripts + '/main.js', 'console.log(\'\\\'Allo \\\'Allo!\');');
-  }
+  this.template('_main.js', this.appScripts + '/main.' + ((this.includeCoffeeScript) ? "coffee" : "js"));
 };
 
 // create config.json for customization
