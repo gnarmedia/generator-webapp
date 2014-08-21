@@ -309,6 +309,7 @@ module.exports = function (grunt) {
         options: {
           collapseBooleanAttributes: true,
           collapseWhitespace: true,
+          conservativeCollapse: true,
           removeAttributeQuotes: true,
           removeCommentsFromCDATA: true,
           removeEmptyAttributes: true,
@@ -361,11 +362,13 @@ module.exports = function (grunt) {
           dest: '<%%= config.dist %>',
           src: [
             '*.{ico,png,txt}',
-            '.htaccess',
             'images/{,*/}*.webp',
             '{,*/}*.html',
             'styles/fonts/{,*/}*.*'
           ]
+        }, {
+          src: 'node_modules/apache-server-configs/dist/.htaccess',
+          dest: '<%%= config.dist %>/.htaccess'
         }<% if (includeBootstrap) { %>, {
           expand: true,
           dot: true,
