@@ -1,275 +1,327 @@
 'use strict';
-var util = require('util');
-var path = require('path');
-var spawn = require('child_process').spawn;
+
+var join = require('path').join;
 var yeoman = require('yeoman-generator');
-var yosay = require('yosay');
 var chalk = require('chalk');
 
-var AppGenerator = module.exports = function Appgenerator(args, options) {
+// prepare config object for creating paths
+var config = {};
 
-  // prepare config object for creating paths
-  var config = {};
+module.exports = yeoman.generators.Base.extend({
+  constructor: function () {
+    yeoman.generators.Base.apply(this, arguments);
 
-  yeoman.generators.Base.apply(this, arguments);
+    // setup the test-framework property, Gruntfile template will need this
+    this.option('test-framework', {
+      desc: 'Test framework to be invoked',
+      type: String,
+      defaults: 'mocha'
+    });
+    this.testFramework = this.options['test-framework'];
 
-  // setup the test-framework property, Gruntfile template will need this
-  this.testFramework = options['test-framework'] || 'mocha';
+    this.option('coffee', {
+      desc: 'Use CoffeeScript',
+      type: Boolean,
+      defaults: false
+    });
+    this.coffee = this.options.coffee;
 
-  // for hooks to resolve on mocha by default
-  options['test-framework'] = this.testFramework;
+    this.pkg = require('../package.json');
+  },
 
-  // resolved to mocha by default (could be switched to jasmine for instance)
-  this.hookFor('test-framework', {
-    as: 'app',
-    options: {
-      options: {
-        'skip-message': options['skip-install-message'],
-        'skip-install': options['skip-install']
+  askFor: function () {
+    var done = this.async();
+
+    // welcome message
+    if (!this.options['skip-welcome-message']) {
+      this.log(require('yosay')());
+      this.log(chalk.magenta(
+        'Out of the box I include HTML5 Boilerplate, jQuery, and a ' +
+        'Gruntfile.js to build your app.'
+      ));
+    }
+
+    var prompts = [{
+      type: 'checkbox',
+      name: 'features',
+      message: 'What more would you like?',
+      choices: [{
+        name: 'Foundation',
+        value: 'includeFoundation',
+        checked: true
+	  },{
+	    name: 'Bootstrap',
+  	    value: 'includeBootstrap',
+  	    checked: false
+	  },{
+  	    name: 'Slim',
+	    value: 'includeSlim',
+	    checked: true
+	  },{
+        name: 'Sass',
+        value: 'includeSass',
+        checked: true
+      },{
+        name: 'CoffeeScript',
+        value: 'includeCoffeeScript',
+        checked: true
+      },{
+        name: 'Modernizr',
+        value: 'includeModernizr',
+        checked: true
+      }]
+    }, {
+      when: function (answers) {
+        return answers.features.indexOf('includeSass') !== -1;
+      },
+      type: 'confirm',
+      name: 'libsass',
+      value: 'includeLibSass',
+      message: 'Would you like to use libsass? Read up more at \n' +
+        chalk.green('https://github.com/andrew/node-sass#node-sass'),
+      default: false
+    }];
+
+    this.prompt(prompts, function (answers) {
+      var features = answers.features;
+
+      function hasFeature(feat) {
+        return features && features.indexOf(feat) !== -1;
+      }
+
+      this.includeSlim = hasFeature('includeSlim');
+      this.includeSass = hasFeature('includeSass');
+      this.includeCoffeeScript = hasFeature('includeCoffeeScript');
+      this.includeFoundation = hasFeature('includeFoundation');
+      this.includeBootstrap = hasFeature('includeBootstrap');
+      this.includeModernizr = hasFeature('includeModernizr');
+
+      this.includeLibSass = answers.libsass;
+      this.includeRubySass = !answers.libsass;
+
+      if (this.includeFoundation && this.includeBootstrap) {
+        this.log('Bootstrap and Foundation conflict, Bootstrap disabled.');
+        this.includeBootstrap = false;
+      }
+
+      done();
+    }.bind(this));
+  },
+
+  gruntfile: function () {
+    this.template('Gruntfile.js');
+  },
+
+  packageJSON: function () {
+    this.template('_package.json', 'package.json');
+  },
+
+  git: function () {
+    this.template('gitignore', '.gitignore');
+    this.copy('gitattributes', '.gitattributes');
+  },
+
+  bower: function () {
+    var bower = {
+      name: this._.slugify(this.appname),
+      private: true,
+      dependencies: {}
+    };
+
+    if (this.includeFoundation) {
+      var f = 'foundation';
+      bower.dependencies[f] = "~5.4.5";
+    } else if (this.includeBootstrap) {
+      var bs = 'bootstrap' + (this.includeSass ? '-sass-official' : '');
+      bower.dependencies[bs] = "~3.2.0";
+    } else {
+      bower.dependencies.jquery = "~1.11.1";
+    }
+
+    if (this.includeModernizr) {
+      bower.dependencies.modernizr = "~2.8.2";
+    }
+
+    this.write('bower.json', JSON.stringify(bower, null, 2));
+  },
+
+  config: function() {
+
+      // check for existence of config file for generator
+    this.configFile = this.options.config;
+
+    // set to false by default
+    this.useAssets = false;
+    this.useComponents = false;
+
+    // attempt to load config if flag was set
+    if (this.configFile) {
+      try {
+        config = require(this.configFile);
+        if (config.assets.length) {
+          this.useAssets = true;
+        }
+      } catch (e) {
+        console.log('config file import failed: ' + e);
       }
     }
-  });
 
-  // check for existence of config file for generator
-  this.configFile = options.config;
+    // set flag for assets folder, used to determine the relative path in places
+    if (config.assets !== undefined) {
+      this.useAssets = (config.assets.length) ? true : false;
+    }
+    if (config.components !== undefined) {
+      this.useComponents = (config.components.length) ? true : false;
+    }
 
-  // set to false by default
-  this.useAssets = false;
-  this.useComponents = false;
+    // set empty if null, keeps it from breaking
+    config              = config            || {'':''};
 
-  // attempt to load config if flag was set
-  if (this.configFile) {
-    try {
-      config = require(this.configFile);
-      if (config.assets.length) {
-        this.useAssets = true;
+    // set directory names (with reasonable defaults)
+    config.app        = config.app        || 'app';
+    config.dist       = config.dist       || 'dist';
+    config.tmp        = config.tmp        || '.tmp';
+    config.test       = config.test       || 'test';
+    config.components = config.components || 'bower_components';
+    config.assets     = config.assets     || '';
+    config.styles     = config.styles     || 'styles';
+    config.scripts    = config.scripts    || 'scripts';
+    config.fonts      = config.fonts      || 'fonts';
+    config.images     = config.images     || 'images';
+    config.vendor     = config.vendor     || 'vendor';
+
+    this.fonts         = config.fonts;
+
+    // base paths
+    config.styles        = join(config.assets,  config.styles);
+    config.fonts         = join(config.assets,  config.fonts);
+    config.images        = join(config.assets,  config.images);
+    config.scripts       = join(config.assets,  config.scripts);
+    config.scriptsVendor = join(config.scripts, config.vendor);
+
+    // gruntfile paths
+    config.appStyles         = join(config.app, config.styles);
+    config.appScripts        = join(config.app, config.scripts);
+    config.appScriptsVendor  = join(config.app, config.scriptsVendor);
+    config.appImages         = join(config.app, config.images);
+    config.distStyles        = join(config.dist, config.styles);
+    config.distFonts         = join(config.dist, config.fonts);
+    config.distImages        = join(config.dist, config.images);
+    config.distScripts       = join(config.dist, config.scripts);
+    config.distScriptsVendor = join(config.dist, config.scriptsVendor);
+    config.tmpStyles         = join(config.tmp, config.styles);
+    config.tmpScripts        = join(config.tmp, config.scripts);
+
+    // variables for html/usermin
+    this.app           = config.app;
+    this.appStyles     = config.appStyles;
+    this.appImages     = config.appImages;
+    this.appScripts    = config.appScripts;
+    this.tmp           = config.tmp;
+    this.components    = config.components;
+    this.styles        = config.styles;
+    this.scripts       = config.scripts;
+    this.scriptsVendor = config.scriptsVendor;
+
+    // make config object global
+    this.config = config;
+
+    this.write('config.json', JSON.stringify(this.config, null, 2));
+  },
+
+  jshint: function () {
+    this.copy('jshintrc', '.jshintrc');
+  },
+
+  editorConfig: function () {
+    this.copy('editorconfig', '.editorconfig');
+  },
+
+  mainStylesheet: function () {
+    var css = 'main.' + (this.includeSass ? 's' : '') + 'css';
+    this.template(css, 'app/styles/' + css);
+  },
+
+  writeIndex: function () {
+    var ext = (this.includeSlim) ? 'slim' : 'html',
+      indexFileName = 'index.' + ext;
+
+    this.indexFileName = indexFileName;
+
+    this.indexFile = this.engine(
+      this.readFileAsString(join(this.sourceRoot(), indexFileName)),
+      this
+    );
+
+    // wire Bootstrap plugins
+    if (this.includeBootstrap && !this.includeSass) {
+      var bs = 'bower_components/bootstrap/js/';
+
+      this.indexFile = this.appendFiles({
+        html: this.indexFile,
+        fileType: 'js',
+        optimizedPath: 'scripts/plugins.js',
+        sourceFileList: [
+          bs + 'affix.js',
+          bs + 'alert.js',
+          bs + 'dropdown.js',
+          bs + 'tooltip.js',
+          bs + 'modal.js',
+          bs + 'transition.js',
+          bs + 'button.js',
+          bs + 'popover.js',
+          bs + 'carousel.js',
+          bs + 'scrollspy.js',
+          bs + 'collapse.js',
+          bs + 'tab.js'
+        ],
+        searchPath: '.'
+      });
+    }
+
+    this.indexFile = this.appendFiles({
+      html: this.indexFile,
+      fileType: 'js',
+      optimizedPath: 'scripts/main.js',
+      sourceFileList: ['scripts/main.js'],
+      searchPath: ['app', '.tmp']
+    });
+  },
+
+  app: function () {
+    this.directory('app');
+    this.mkdir('app/scripts');
+    this.mkdir('app/styles');
+    this.mkdir('app/images');
+    this.write('app/' + this.indexFileName, this.indexFile);
+
+    if (this.coffee) {
+      this.write(
+        'app/scripts/main.coffee',
+        'console.log "\'Allo from CoffeeScript!"'
+      );
+    }
+    else {
+      this.write('app/scripts/main.js', 'console.log(\'\\\'Allo \\\'Allo!\');');
+    }
+  },
+
+  install: function () {
+    this.on('end', function () {
+      this.invoke(this.options['test-framework'], {
+        options: {
+          'skip-message': this.options['skip-install-message'],
+          'skip-install': this.options['skip-install'],
+          'coffee': this.options.coffee
+        }
+      });
+
+      if (!this.options['skip-install']) {
+        this.installDependencies({
+          skipMessage: this.options['skip-install-message'],
+          skipInstall: this.options['skip-install']
+        });
       }
-    } catch (e) {
-      console.log('config file import failed: ' + e);
-    }
+    });
   }
-
-  // set flag for assets folder, used to determine the relative path in places
-  if (config.assets !== undefined) {
-    this.useAssets = (config.assets.length) ? true : false;
-  }
-  if (config.components !== undefined) {
-    this.useComponents = (config.components.length) ? true : false;
-  }
-
-  // set empty if null, keeps it from breaking
-  config              = config            || {'':''};
-
-  // set directory names (with reasonable defaults)
-  config.app        = config.app        || 'app';
-  config.dist       = config.dist       || 'dist';
-  config.tmp        = config.tmp        || '.tmp';
-  config.test       = config.test       || 'test';
-  config.components = config.components || 'bower_components';
-  config.assets     = config.assets     || '';
-  config.styles     = config.styles     || 'styles';
-  config.scripts    = config.scripts    || 'scripts';
-  config.fonts      = config.fonts      || 'fonts';
-  config.images     = config.images     || 'images';
-  config.vendor     = config.vendor     || 'vendor';
-
-  this.fonts         = config.fonts;
-
-  // base paths
-  config.styles        = path.join(config.assets,  config.styles);
-  config.fonts         = path.join(config.assets,  config.fonts);
-  config.images        = path.join(config.assets,  config.images);
-  config.scripts       = path.join(config.assets,  config.scripts);
-  config.scriptsVendor = path.join(config.scripts, config.vendor);
-
-  // gruntfile paths
-  config.appStyles         = path.join(config.app, config.styles);
-  config.appScripts        = path.join(config.app, config.scripts);
-  config.appScriptsVendor  = path.join(config.app, config.scriptsVendor);
-  config.appImages         = path.join(config.app, config.images);
-  config.distStyles        = path.join(config.dist, config.styles);
-  config.distFonts         = path.join(config.dist, config.fonts);
-  config.distImages        = path.join(config.dist, config.images);
-  config.distScripts       = path.join(config.dist, config.scripts);
-  config.distScriptsVendor = path.join(config.dist, config.scriptsVendor);
-  config.tmpStyles         = path.join(config.tmp, config.styles);
-  config.tmpScripts        = path.join(config.tmp, config.scripts);
-
-  // variables for html/usermin
-  this.app           = config.app;
-  this.appStyles     = config.appStyles;
-  this.appImages     = config.appImages;
-  this.appScripts    = config.appScripts;
-  this.tmp           = config.tmp;
-  this.components    = config.components;
-  this.styles        = config.styles;
-  this.scripts       = config.scripts;
-  this.scriptsVendor = config.scriptsVendor;
-
-  // make config object global
-  this.config = config;
-
-  this.options = options;
-
-  this.pkg = require('../package.json');
-};
-
-util.inherits(AppGenerator, yeoman.generators.Base);
-
-AppGenerator.prototype.askFor = function askFor() {
-  var cb = this.async();
-
-  // welcome message
-  if (!this.options['skip-welcome-message']) {
-    this.log(yosay());
-    this.log(chalk.magenta(
-      'Out of the box I include HTML5 Boilerplate, jQuery, and a ' +
-      'Gruntfile.js to build your app.'
-    ));
-  }
-
-  var prompts = [{
-    type: 'checkbox',
-    name: 'features',
-    message: 'What more would you like?',
-    choices: [{
-      name: 'Foundation',
-      value: 'includeFoundation',
-      checked: true
-    },{
-      name: 'Bootstrap',
-      value: 'includeBootstrap',
-      checked: false
-    },{
-      name: 'Sass',
-      value: 'includeSass',
-      checked: true
-    },{
-      name: 'Slim',
-      value: 'includeSlim',
-      checked: true
-    },{
-      name: 'CoffeeScript',
-      value: 'includeCoffeeScript',
-      checked: true
-    },{
-      name: 'Modernizr',
-      value: 'includeModernizr',
-      checked: true
-    }]
-  }, {
-    when: function (answers) {
-      return answers.features.indexOf('includeSass') !== -1;
-    },
-    type: 'confirm',
-    name: 'libsass',
-    value: 'includeLibSass',
-    message: 'Would you like to use libsass? Read up more at \n' +
-      chalk.green('https://github.com/andrew/node-sass#node-sass'),
-    default: false
-  }];
-
-  this.prompt(prompts, function (answers) {
-    var features = answers.features;
-
-    function hasFeature(feat) {
-      return features.indexOf(feat) !== -1;
-    }
-
-	this.includeSlim = hasFeature('includeSlim');
-    this.includeSass = hasFeature('includeSass');
-    this.includeFoundation = hasFeature('includeFoundation');
-    this.includeBootstrap = hasFeature('includeBootstrap');
-    this.includeCoffeeScript = hasFeature('includeCoffeeScript');
-    this.includeModernizr = hasFeature('includeModernizr');
-
-    this.includeLibSass = answers.libsass;
-    this.includeRubySass = !answers.libsass;
-
-    if (this.includeFoundation && this.includeBootstrap) {
-      this.log('Bootstrap and Foundation conflict, Bootstrap disabled.');
-      this.includeBootstrap = false;
-    }
-
-    cb();
-  }.bind(this));
-};
-
-AppGenerator.prototype.gruntfile = function gruntfile() {
-  this.template('Gruntfile.js');
-};
-
-AppGenerator.prototype.packageJSON = function packageJSON() {
-  this.template('_package.json', 'package.json');
-};
-
-AppGenerator.prototype.git = function git() {
-  this.template('gitignore', '.gitignore');
-  this.copy('gitattributes', '.gitattributes');
-};
-
-AppGenerator.prototype.bower = function bower() {
-  this.template('_bower.json', 'bower.json');
-  if (this.useComponents) {
-    this.write('.bowerrc', '{"directory":"./' + this.components + '/"}');
-  }
-};
-
-AppGenerator.prototype.jshint = function jshint() {
-  this.copy('jshintrc', '.jshintrc');
-};
-
-AppGenerator.prototype.editorConfig = function editorConfig() {
-  this.copy('editorconfig', '.editorconfig');
-};
-
-AppGenerator.prototype.h5bp = function h5bp() {
-  this.copy('favicon.ico', this.app + '/favicon.ico');
-  this.copy('404.html',    this.app + '/404.html');
-  this.copy('robots.txt',  this.app + '/robots.txt');
-  this.copy('htaccess',    this.app + '/.htaccess');
-};
-
-AppGenerator.prototype.mainStylesheet = function mainStylesheet() {
-  var css = 'main.' + (this.includeSass ? 's' : '') + 'css';
-  this.copy(css, this.appStyles + '/' + css);
-};
-
-AppGenerator.prototype.writeIndex = function writeIndex() {
-  var ext = (this.includeSlim) ? 'slim' : 'html',
-    indexFileName = 'index.' + ext;
-
-  this.indexFile = this.readFileAsString(
-    path.join(this.sourceRoot(), indexFileName)
-  );
-  this.indexFile = this.engine(this.indexFile, this);
-
-  this.write('app/' + indexFileName, this.indexFile);
-};
-
-AppGenerator.prototype.app = function app() {
-  this.mkdir(this.app);
-  this.mkdir(this.appScripts);
-  this.mkdir(this.appStyles);
-  this.mkdir(this.appImages);
-
-  this.template('_main.js', this.appScripts + '/main.' + ((this.includeCoffeeScript) ? "coffee" : "js"));
-};
-
-// create config.json for customization
-AppGenerator.prototype.config = function config() {
-  this.write('config.json', JSON.stringify(this.config));
-};
-
-AppGenerator.prototype.install = function () {
-  if (this.options['skip-install']) {
-    return;
-  }
-
-  var done = this.async();
-  this.installDependencies({
-    skipMessage: this.options['skip-install-message'],
-    skipInstall: this.options['skip-install'],
-    callback: done
-  });
-};
+});

@@ -123,58 +123,15 @@ html.no-js
     <% } %>
 
     / build comments must be multiline for usemin
-    |
-      <!-- build:js <%= scripts %>/vendor.js -->
-      <!-- bower:js -->
-      <!-- endbower -->
-      <!-- endbuild -->foundation.
+  |
+    <!-- build:js(.) <%= scripts %>/vendor.js -->
+    <!-- bower:js -->
+    <!-- endbower -->
+    <!-- endbuild -->
 
-      <!-- build:js <%= scriptsVendor %>/jquery.js -->
-      <script src="../<%= components %>/jquery/dist/jquery.js"></script>
-      <!-- endbuild --><% if (includeFoundation) { %>
-
-      <!-- build:js <%= scriptsVendor %>/fastclick.js -->
-      <script src="../<%= components %>/fastclick/lib/fastclick.js"></script>
-      <!-- endbuild -->
-
-      <!-- build:js <%= scriptsVendor %>/foundation.js -->
-      <script src="../<%= components %>/foundation/js/foundation/foundation.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.abide.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.accordion.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.alert.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.clearing.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.dropdown.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.equalizer.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.interchange.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.joyride.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.magellan.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.offcanvas.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.orbit.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.reveal.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.slider.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.tab.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.tooltip.js"></script>
-      <script src="../<%= components %>/foundation/js/foundation/foundation.topbar.js"></script>
-      <!-- endbuild --><% } %>
-
-      <% if (includeBootstrap) { %>}<!-- build:js <%= scriptsVendor %>/bootstrap.js -->
-      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/affix.js"></script>
-      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/alert.js"></script>
-      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/dropdown.js"></script>
-      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/tooltip.js"></script>
-      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/modal.js"></script>
-      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/transition.js"></script>
-      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/button.js"></script>
-      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/popover.js"></script>
-      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/carousel.js"></script>
-      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/scrollspy.js"></script>
-      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/collapse.js"></script>
-      <script src="../<%= components %>/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/tab.js"></script>
-      <!-- endbuild --><% } %>
-
-      <!-- build:js({<%= app %>,<%= tmp %>}) <%= scripts %>/main.js -->
-      <script src="<%= scripts %>/main.js"></script>
-      <!-- endbuild -->
+    <!-- build:js({<%= app %>,<%= tmp %>}) <%= scripts %>/main.js -->
+    <script src="<%= scripts %>/main.js"></script>
+    <!-- endbuild -->
 
     / Google Analytics: change UA-XXXXX-X to be your site's ID.
     javascript:
