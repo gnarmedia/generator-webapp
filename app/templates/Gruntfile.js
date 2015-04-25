@@ -1,3 +1,5 @@
+/*jshint node:true*/
+
 // Generated on <%= (new Date).toISOString().split('T')[0] %> using
 // <%= pkg.name %> <%= pkg.version %>
 'use strict';
@@ -42,9 +44,6 @@ module.exports = function (grunt) {
       js: {
         files: ['<%%= config.appScripts %>/{,*/}*.js'],
         tasks: ['jshint'],
-        options: {
-          livereload: true
-        }
       },
       jstest: {
         files: ['<%%= config.test %>/spec/{,*/}*.js'],
@@ -64,58 +63,48 @@ module.exports = function (grunt) {
       styles: {
         files: ['<%%= config.appStyles %>/{,*/}*.css'],
         tasks: ['newer:copy:styles', 'autoprefixer']
-      },
-      livereload: {
-        options: {
-          livereload: '<%%= connect.options.livereload %>'
-        },
-        files: [
-          '<%%= config.app %>/{,*/}*.html',
-          '<%%= config.tmpStyles %>/{,*/}*.css',<% if (includeCoffeeScript) { %>
-          '<%%= config.tmpScripts %>/{,*/}*.js',<% } %>
-          '<%%= config.appImages %>/{,*/}*'
-        ]
       }
     },
 
-    // The actual grunt server settings
-    connect: {
+    browserSync: {
       options: {
-        port: 9000,
-        open: true,
-        livereload: 35729,
-        // Change this to '0.0.0.0' to access the server from outside
-        hostname: 'localhost'
+        notify: false,
+        background: true
       },
       livereload: {
         options: {
-          middleware: function(connect) {
-            return [
-              connect.static(config.tmp),
-              connect().use('/' + config.components, connect.static('./' + config.components)),
-              connect.static(config.app)
-            ];
+          files: [
+            '<%%= config.app %>/{,*/}*.html',
+            '.tmp/styles/{,*/}*.css',
+            '<%%= config.app %>/images/{,*/}*',
+            '<%%= config.app %>/scripts/{,*/}*.js'
+          ],
+          server: {
+            baseDir: ['.tmp', config.app],
+            routes: {
+              '/bower_components': './bower_components'
+            }
           }
         }
       },
       test: {
         options: {
-          open: false,
           port: 9001,
-          middleware: function(connect) {
-            return [
-              connect.static(config.tmp),
-              connect.static(config.test),
-              connect().use('/' + config.components, connect.static('./' + config.components)),
-              connect.static(config.app)
-            ];
+          open: false,
+          logLevel: 'silent',
+          host: 'localhost',
+          server: {
+            baseDir: ['.tmp', './test', config.app],
+            routes: {
+              '/bower_components': './bower_components'
+            }
           }
         }
       },
       dist: {
         options: {
-          base: '<%%= config.dist %>',
-          livereload: false
+          background: false,
+          server: '<%%= config.dist %>'
         }
       }
     },
@@ -154,7 +143,7 @@ module.exports = function (grunt) {
       all: {
         options: {
           run: true,
-          urls: ['http://<%%= connect.test.options.hostname %>:<%%= connect.test.options.port %>/index.html']
+          urls: ['http://<%%= browserSync.test.options.host %>:<%%= browserSync.test.options.port %>/index.html']
         }
       }
     },<% } else if (testFramework === 'jasmine') { %>
@@ -221,7 +210,11 @@ module.exports = function (grunt) {
     // Add vendor prefixed styles
     autoprefixer: {
       options: {
-        browsers: ['> 1%', 'last 2 versions', 'Firefox ESR', 'Opera 12.1']
+        browsers: ['> 1%', 'last 2 versions', 'Firefox ESR', 'Opera 12.1']<% if (includeSass) { %>,
+        map: {
+          prev: '.tmp/styles/'
+        }
+        <% } %>
       },
       dist: {
         files: [{
@@ -249,17 +242,15 @@ module.exports = function (grunt) {
     },
 
     // Renames files for browser caching purposes
-    rev: {
+    filerev: {
       dist: {
-        files: {
-          src: [
-            '<%%= config.distScripts %>/{,*/}*.js',
-            '<%%= config.distStyles %>/{,*/}*.css',
-            '<%%= config.distImages %>/{,*/}*.*',
-            '<%%= config.distFonts %>/{,*/}*.*',
-            '<%%= config.dist %>/*.{ico,png}'
-          ]
-        }
+        src: [
+          '<%%= config.distScripts %>/{,*/}*.js',
+          '<%%= config.distStyles %>/{,*/}*.css',
+          '<%%= config.distImages %>/{,*/}*.*',
+          '<%%= config.distFonts %>/{,*/}*.*',
+          '<%%= config.dist %>/*.{ico,png}'
+        ]
       }
     },<% if (includeSlim) { %>
 
@@ -335,7 +326,8 @@ module.exports = function (grunt) {
           removeCommentsFromCDATA: true,
           removeEmptyAttributes: true,
           removeOptionalTags: true,
-          removeRedundantAttributes: true,
+          // true would impact styles with attribute selectors
+          removeRedundantAttributes: false,
           useShortDoctype: true
         },
         files: [{
@@ -387,9 +379,6 @@ module.exports = function (grunt) {
             '{,*/}*.html',
             '<%%= config.fonts %>/{,*/}*.*'
           ]
-        }, {
-          src: 'node_modules/apache-server-configs/dist/.htaccess',
-          dest: '<%%= config.dist %>/.htaccess'
         }<% if (includeBootstrap) { %>, {
           expand: true,
           dot: true,
@@ -401,14 +390,14 @@ module.exports = function (grunt) {
           src: '*',
           dest: '<%%= config.dist %>'
         }<% } %>]
-      },
+      }<% if (!includeSass) { %>,
       styles: {
         expand: true,
         dot: true,
         cwd: '<%%= config.appStyles %>',
         dest: '<%%= config.tmpStyles %>',
         src: '{,*/}*.css'
-      }
+      }<% } %>
     },<% if (includeModernizr) { %>
 
     // Generates a custom Modernizr build that includes only the tests you
@@ -430,19 +419,19 @@ module.exports = function (grunt) {
 
     // Run some tasks in parallel to speed up build process
     concurrent: {
-      server: [<% if (includeSass) { %>
-        'sass:server',<% } if (includeCoffeeScript) {  %>
-        'coffee:dist',<% } %>
-        'copy:styles'
+       server: [<% if (includeCoffeeScript) {  %>
+        'coffee:dist',<% } %><% if (includeSass) { %>
+        'sass:server'<% } else { %>
+        'copy:styles'<% } %>
       ],
       test: [<% if (includeCoffeeScript) { %>
-        'coffee',<% } %>
-        'copy:styles'
+        'coffee'<% } %><% if (includeCoffeeScript && !includeSass) {  %>,<% } %><% if (!includeSass) { %>
+        'copy:styles'<% } %>
       ],
       dist: [<% if (includeCoffeeScript) { %>
-        'coffee',<% } if (includeSass) { %>
-        'sass',<% } %>
-        'copy:styles',
+        'coffee',<% } %><% if (includeSass) { %>
+        'sass',<% } else { %>
+        'copy:styles',<% } %>
         'imagemin',
         'svgmin'
       ]
@@ -450,12 +439,10 @@ module.exports = function (grunt) {
   });
 
 
-  grunt.registerTask('serve', 'start the server and preview your app, --allow-remote for remote access', function (target) {
-    if (grunt.option('allow-remote')) {
-      grunt.config.set('connect.options.hostname', '0.0.0.0');
-    }
+  grunt.registerTask('serve', 'start the server and preview your app', function (target) {
+
     if (target === 'dist') {
-      return grunt.task.run(['build', 'connect:dist:keepalive']);
+      return grunt.task.run(['build', 'browserSync:dist']);
     }
 
     grunt.task.run([
@@ -464,7 +451,7 @@ module.exports = function (grunt) {
       'wiredep',
       'concurrent:server',
       'autoprefixer',
-      'connect:livereload',
+      'browserSync:livereload',
       'watch'
     ]);
   });
@@ -484,7 +471,7 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
-      'connect:test',<% if (testFramework === 'mocha') { %>
+      'browserSync:test',<% if (testFramework === 'mocha') { %>
       'mocha'<% } else if (testFramework === 'jasmine') { %>
       'jasmine'<% } %>
     ]);
@@ -501,7 +488,7 @@ module.exports = function (grunt) {
     'uglify',
     'copy:dist',<% if (includeModernizr) { %>
     'modernizr',<% } %>
-    'rev',
+    'filerev',
     'usemin',
     'htmlmin'
   ]);

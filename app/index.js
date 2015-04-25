@@ -49,15 +49,15 @@ module.exports = yeoman.generators.Base.extend({
         name: 'Foundation',
         value: 'includeFoundation',
         checked: true
-	  },{
-	    name: 'Bootstrap',
-  	    value: 'includeBootstrap',
-  	    checked: false
-	  },{
-  	    name: 'Slim',
-	    value: 'includeSlim',
-	    checked: true
-	  },{
+    },{
+      name: 'Bootstrap',
+        value: 'includeBootstrap',
+        checked: false
+    },{
+        name: 'Slim',
+      value: 'includeSlim',
+      checked: true
+    },{
         name: 'Sass',
         value: 'includeSass',
         checked: true
@@ -72,7 +72,8 @@ module.exports = yeoman.generators.Base.extend({
       }]
     }, {
       when: function (answers) {
-        return answers.features.indexOf('includeSass') !== -1;
+        return answers && answers.features &&
+          answers.features.indexOf('includeSass') !== -1;
       },
       type: 'confirm',
       name: 'libsass',
@@ -133,15 +134,16 @@ module.exports = yeoman.generators.Base.extend({
       bower.dependencies[f] = "~5.4.5";
     } else if (this.includeBootstrap) {
       var bs = 'bootstrap' + (this.includeSass ? '-sass-official' : '');
-      bower.dependencies[bs] = "~3.2.0";
+      bower.dependencies[bs] = '~3.2.0';
     } else {
-      bower.dependencies.jquery = "~1.11.1";
+      bower.dependencies.jquery = '~1.11.1';
     }
 
     if (this.includeModernizr) {
-      bower.dependencies.modernizr = "~2.8.2";
+      bower.dependencies.modernizr = '~2.8.2';
     }
 
+    this.copy('bowerrc', '.bowerrc');
     this.write('bower.json', JSON.stringify(bower, null, 2));
   },
 
@@ -296,13 +298,9 @@ module.exports = yeoman.generators.Base.extend({
     this.write('app/' + this.indexFileName, this.indexFile);
 
     if (this.coffee) {
-      this.write(
-        'app/scripts/main.coffee',
-        'console.log "\'Allo from CoffeeScript!"'
-      );
-    }
-    else {
-      this.write('app/scripts/main.js', 'console.log(\'\\\'Allo \\\'Allo!\');');
+      this.copy('main.coffee', 'app/scripts/main.coffee');
+    } else {
+      this.copy('main.js', 'app/scripts/main.js');
     }
   },
 
