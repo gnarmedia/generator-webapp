@@ -173,7 +173,7 @@ module.exports = function (grunt) {
           expand: true,
           cwd: '<%%= config.test %>/spec',
           src: '{,*/}*.{coffee,litcoffee,coffee.md}',
-          dest: '<%%= config.test %>/spec',
+          dest: '<%%= config.tmp %>/spec',
           ext: '.js'
         }]
       }
@@ -383,7 +383,7 @@ module.exports = function (grunt) {
           expand: true,
           dot: true,
           cwd: '<% if (includeSass) {
-              %>bower_components/bootstrap-sass-official/assets/fonts/bootstrap<%
+              %><%%= config.components %>/bootstrap-sass-official/assets/fonts/bootstrap<%
             } else {
               %><%%= config.components %>/bootstrap/dist/fonts<%
             } %>',
