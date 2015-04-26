@@ -54,8 +54,8 @@ module.exports = yeoman.generators.Base.extend({
         value: 'includeBootstrap',
         checked: false
     },{
-        name: 'Slim',
-      value: 'includeSlim',
+        name: 'Jade',
+      value: 'includeJade',
       checked: true
     },{
         name: 'Sass',
@@ -90,7 +90,7 @@ module.exports = yeoman.generators.Base.extend({
         return features && features.indexOf(feat) !== -1;
       }
 
-      this.includeSlim = hasFeature('includeSlim');
+      this.includeJade = hasFeature('includeJade');
       this.includeSass = hasFeature('includeSass');
       this.includeCoffeeScript = hasFeature('includeCoffeeScript');
       this.includeFoundation = hasFeature('includeFoundation');
@@ -245,7 +245,7 @@ module.exports = yeoman.generators.Base.extend({
   },
 
   writeIndex: function () {
-    var ext = (this.includeSlim) ? 'slim' : 'html',
+    var ext = (this.includeJade) ? 'jade' : 'html',
       indexFileName = 'index.' + ext;
 
     this.indexFileName = indexFileName;

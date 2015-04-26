@@ -51,10 +51,10 @@ module.exports = function (grunt) {
       },<% } %>
       gruntfile: {
         files: ['Gruntfile.js']
-      },<% if (includeSlim) { %>
-      slim: {
-        files: ['<%%= config.app %>/{,*/}*.slim'],
-        tasks: ['slim']
+      },<% if (includeJade) { %>
+      jade: {
+        files: ['<%%= config.app %>/{,*/}*.jade'],
+        tasks: ['jade']
       },<% } %><% if (includeSass) { %>
       sass: {
         files: ['<%%= config.appStyles %>/{,*/}*.{scss,sass}'],
@@ -253,10 +253,10 @@ module.exports = function (grunt) {
           '<%%= config.dist %>/*.{ico,png}'
         ]
       }
-    },<% if (includeSlim) { %>
+    },<% if (includeJade) { %>
 
-    // Compile Slim to HTML
-    slim: {
+    // Compile Jade to HTML
+    jade: {
       app: {
         options: {
           pretty: true
@@ -264,7 +264,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd:    '<%%= config.app %>',
-          src:    '*.slim',
+          src:    '*.jade',
           dest:   '<%%= config.app %>',
           ext:    '.html'
         }]
@@ -447,8 +447,8 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
-      'clean:server',<% if (includeSlim) { %>
-      'slim',<% } %>
+      'clean:server',<% if (includeJade) { %>
+      'jade',<% } %>
       'wiredep',
       'concurrent:server',
       'autoprefixer',
